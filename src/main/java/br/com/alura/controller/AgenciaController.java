@@ -1,7 +1,7 @@
 package br.com.alura.controller;
 
 import br.com.alura.domain.Agencia;
-import br.com.alura.service.http.AgenciaService;
+import br.com.alura.service.AgenciaService;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;

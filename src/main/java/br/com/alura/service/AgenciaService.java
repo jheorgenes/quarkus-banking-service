@@ -1,10 +1,11 @@
-package br.com.alura.service.http;
+package br.com.alura.service;
 
 import br.com.alura.domain.Agencia;
 import br.com.alura.domain.exceptions.AgenciaNaoAtivaOuNaoEncontradaException;
 import br.com.alura.domain.http.AgenciaHttp;
 import br.com.alura.domain.http.SituacaoCadastral;
 import br.com.alura.repository.AgenciaRepository;
+import br.com.alura.service.http.SituacaoCadastralHttpService;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
@@ -13,7 +14,7 @@ import org.eclipse.microprofile.rest.client.inject.RestClient;
 public class AgenciaService {
 
     @RestClient
-    private SituacaoCadastralHttpService situacaoCadastralHttpService;
+    SituacaoCadastralHttpService situacaoCadastralHttpService;
 
     private final AgenciaRepository agenciaRepository;
 
@@ -40,5 +41,15 @@ public class AgenciaService {
 
     public void alterar(Agencia agencia) {
         agenciaRepository.update("nome = ?1, razaoSocial = ?2, cnpj = ?3 where id = ?4", agencia.getNome(), agencia.getRazaoSocial(), agencia.getCnpj(), agencia.getId());
+
+//        //Se estivesse usando PanacheEntity direto em Agencia
+//        Agencia entidadeExistente = agenciaRepository.findById(agencia.getId());
+//        if(entidadeExistente == null) {
+//            throw new AgenciaNaoAtivaOuNaoEncontradaException();
+//        }
+//
+//        entidadeExistente.setNome(agencia.getNome());
+//        entidadeExistente.setRazaoSocial(agencia.getRazaoSocial());
+//        entidadeExistente.setCnpj(agencia.getCnpj());
     }
 }
