@@ -6,6 +6,7 @@ import br.com.alura.domain.exceptions.AgenciaNaoAtivaOuNaoEncontradaException;
 import br.com.alura.domain.http.AgenciaHttp;
 import br.com.alura.repository.AgenciaRepository;
 import br.com.alura.service.http.SituacaoCadastralHttpService;
+import br.com.alura.utils.AgenciaFixture;
 import io.quarkus.test.InjectMock;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
@@ -30,7 +31,7 @@ public class AgenciaServiceTest {
     @Test
     public void deveNaoCadastrarQuandoClientRetornarNull() {
         // Construíndo estrutura dos dados mockados
-        Agencia agencia = criarAgencia();
+        Agencia agencia = AgenciaFixture.criaAgencia();
         Mockito.when(situacaoCadastralHttpService.buscarPorCnpj("123")).thenReturn(null);
 
         // Verifica se lancou a exception quando executado o cadastro
@@ -41,21 +42,24 @@ public class AgenciaServiceTest {
     }
 
     @Test
+    public void deveNaoCadastrarQuandoClientRetornarSituacaoCadastralInativo() {
+        // Construíndo estrutura dos dados mockados
+        Agencia agencia = AgenciaFixture.criaAgencia();
+        AgenciaHttp agenciaHttpInativa = AgenciaFixture.criarAgenciaHttp("INATIVO");
+        Mockito.when(situacaoCadastralHttpService.buscarPorCnpj("123")).thenReturn(agenciaHttpInativa);
+
+        Assertions.assertThrows(AgenciaNaoAtivaOuNaoEncontradaException.class, () -> agenciaService.cadastrar(agencia));
+
+        Mockito.verify(agenciaRepository, Mockito.never()).persist(agencia);
+    }
+
+    @Test
     public void deveCadastrarQuandoClientRetornarSituacaoCadastralAtivo() {
         // Construíndo estrutura dos dados mockados
-        Agencia agencia = criarAgencia();
-        Mockito.when(situacaoCadastralHttpService.buscarPorCnpj("123")).thenReturn(criarAgenciaHttp());
+        Agencia agencia = AgenciaFixture.criaAgencia();
+        Mockito.when(situacaoCadastralHttpService.buscarPorCnpj("123")).thenReturn(AgenciaFixture.criarAgenciaHttp("ATIVO"));
 
         agenciaService.cadastrar(agencia);
         Mockito.verify(agenciaRepository).persist(agencia);
-    }
-
-    private Agencia criarAgencia() {
-        Endereco endereco = new Endereco(1, "Quadra", "Teste", "Teste", 1);
-        return new Agencia(1, "Agencia Teste", "Razao Agencia teste", "123", endereco);
-    }
-
-    private AgenciaHttp criarAgenciaHttp() {
-        return new AgenciaHttp("Agencia Teste", "Razao Agencia teste", "123", "ATIVO");
     }
 }
