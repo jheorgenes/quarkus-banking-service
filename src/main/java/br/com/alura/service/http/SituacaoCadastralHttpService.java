@@ -2,6 +2,7 @@ package br.com.alura.service.http;
 
 
 import br.com.alura.domain.http.AgenciaHttp;
+import io.smallrye.mutiny.Uni;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
@@ -15,5 +16,5 @@ public interface SituacaoCadastralHttpService {
 
     @GET
     @Path("{cnpj}")
-    AgenciaHttp buscarPorCnpj(String cnpj);
+    Uni<AgenciaHttp> buscarPorCnpj(String cnpj);
 }

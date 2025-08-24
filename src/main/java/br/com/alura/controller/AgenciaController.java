@@ -2,6 +2,8 @@ package br.com.alura.controller;
 
 import br.com.alura.domain.Agencia;
 import br.com.alura.service.AgenciaService;
+import io.smallrye.common.annotation.NonBlocking;
+import io.smallrye.mutiny.Uni;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.Context;
@@ -18,32 +20,30 @@ public class AgenciaController {
     }
 
     @POST
+    @NonBlocking
     @Transactional
-    public RestResponse<Void> cadastrar(Agencia agencia, @Context UriInfo uriInfo) {
-        this.agenciaService.cadastrar(agencia);
-        return RestResponse.created(uriInfo.getAbsolutePath());
+    public Uni<RestResponse<Void>> cadastrar(Agencia agencia, @Context UriInfo uriInfo) {
+        return this.agenciaService.cadastrar(agencia)
+                .replaceWith(RestResponse.created(uriInfo.getAbsolutePathBuilder().build()));
     }
 
     @GET
     @Path("{id}")
-    public RestResponse<Agencia> buscarPorId(Long id) {
-        var agencia = agenciaService.buscarPorId(id);
-        return RestResponse.ok(agencia);
+    public Uni<RestResponse<Agencia>> buscarPorId(Long id) {
+        return agenciaService.buscarPorId(id).onItem().transform(RestResponse::ok);
     }
 
     @DELETE
     @Path("{id}")
     @Transactional
-    public RestResponse<Void> deletar(Long id) {
-        agenciaService.deletar(id);
-        return RestResponse.ok();
+    public Uni<RestResponse<Void>> deletar(Long id) {
+        return agenciaService.deletar(id).replaceWith(RestResponse.ok());
     }
 
     @PUT
     @Path("{id}")
     @Transactional
-    public RestResponse<Void> alterar(Agencia agencia) {
-        agenciaService.alterar(agencia);
-        return RestResponse.ok();
+    public Uni<RestResponse<Void>> alterar(Agencia agencia) {
+        return agenciaService.alterar(agencia).replaceWith(RestResponse.ok());
     }
 }

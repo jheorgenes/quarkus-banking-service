@@ -7,7 +7,7 @@ public class Agencia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
     private String nome;
 
     @Column(name = "razao_social")
@@ -20,7 +20,7 @@ public class Agencia {
 
     public Agencia() {}
 
-    public Agencia(Integer id, String nome, String razaoSocial, String cnpj, Endereco endereco) {
+    public Agencia(Long id, String nome, String razaoSocial, String cnpj, Endereco endereco) {
         this.id = id;
         this.nome = nome;
         this.razaoSocial = razaoSocial;
@@ -28,7 +28,7 @@ public class Agencia {
         this.endereco = endereco;
     }
 
-    public Integer getId() {
+    public Long getId() {
         return id;
     }
 
