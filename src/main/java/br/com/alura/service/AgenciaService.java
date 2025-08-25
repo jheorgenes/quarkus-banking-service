@@ -13,6 +13,8 @@ import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.quarkus.logging.Log;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.faulttolerance.CircuitBreaker;
+import org.eclipse.microprofile.faulttolerance.Fallback;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 
 
@@ -36,6 +38,13 @@ public class AgenciaService {
      * Por isso, foi adicionado o @WithTransaction
      */
     @WithTransaction
+    @CircuitBreaker(
+            requestVolumeThreshold = 5, //Quantidade de requisições por validação
+            failureRatio = 0.5, //Porcentagem de tolerância a falha
+            delay = 2000, //Tempo de espera para reabrir o circuito
+            successThreshold = 2 //Quantidade de requisições para reabrir o circuito
+    )
+    @Fallback(fallbackMethod = "chamarFallback")
     public Uni<Void> cadastrar(Agencia agencia) {
         Timer.Sample sample = Timer.start(meterRegistry);
 
@@ -61,6 +70,11 @@ public class AgenciaService {
             meterRegistry.counter("agencia_nao_adicionada_counter").increment();
             return Uni.createFrom().failure(AgenciaNaoAtivaOuNaoEncontradaException::new);
         }
+    }
+
+    public Uni<Void> chamarFallback(Agencia agencia) {
+        Log.info("A agência com CNPJ " + agencia.getCnpj() + " não foi adicionada pois houve um erro");
+        return Uni.createFrom().nullItem();
     }
 
     /**

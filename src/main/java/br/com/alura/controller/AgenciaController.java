@@ -3,6 +3,7 @@ package br.com.alura.controller;
 import br.com.alura.domain.Agencia;
 import br.com.alura.service.AgenciaService;
 import io.smallrye.common.annotation.NonBlocking;
+import io.smallrye.faulttolerance.api.RateLimit;
 import io.smallrye.mutiny.Uni;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.*;
@@ -28,6 +29,7 @@ public class AgenciaController {
     }
 
     @GET
+    @RateLimit(value = 5, window = 10) //Define a quantidade de requisições por validação
     @Path("{id}")
     public Uni<RestResponse<Agencia>> buscarPorId(Long id) {
         return agenciaService.buscarPorId(id).onItem().transform(RestResponse::ok);
